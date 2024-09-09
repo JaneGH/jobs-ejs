@@ -36,6 +36,7 @@ if (app.get("env") === "production") {
 }
 
 app.use(session(sessionParams));
+app.use(require("connect-flash")());
 app.use(flash());
 
 // Routes
@@ -49,7 +50,7 @@ app.get("/secretWord", (req, res) => {
 });
 
 app.post("/secretWord", (req, res) => {
-  if (req.body.secretWord.toUpperCase()[0] === "P") {
+  if (req.body.secretWord.toUpperCase()[0] == "P") {
     req.flash("error", "That word won't work!");
     req.flash("error", "You can't use words that start with p.");
   } else {
