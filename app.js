@@ -27,9 +27,13 @@ app.use(rateLimit({ // Rate limiting
   max: 100, // Limit each IP to 100 requests per windowMs
 }));
 
+let mongoURL = process.env.MONGO_URI;
+if (process.env.NODE_ENV == "test") {
+  mongoURL = process.env.MONGO_URI_TEST;
+}
 // Set up sessions
 const store = new MongoDBStore({
-  uri: process.env.MONGO_URI,
+  uri: mongoURL,
   collection: "mySessions",
 });
 store.on("error", (error) => {
@@ -48,6 +52,34 @@ if (app.get("env") === "production") {
   app.set("trust proxy", 1); // trust first proxy
   sessionParams.cookie.secure = true; // serve secure cookies
 }
+
+
+//for testing
+app.use((req, res, next) => {
+  if (req.path === "/multiply") {
+    res.set("Content-Type", "application/json");
+  } else {
+    res.set("Content-Type", "text/html");
+  }
+  next();
+});
+
+app.get("/multiply", (req, res) => {
+  const result = req.query.first * req.query.second;
+  if (result.isNaN) {
+    result = "NaN";
+  } else if (result == null) {
+    result = "null";
+  }
+  res.json({ result: result });
+});
+
+
+// Sample HTML route
+app.get("/", (req, res) => {
+  res.send("<h1>Welcome</h1><a href='#'>Click this link</a>");
+});
+//***
 
 app.use(session(sessionParams));
 app.use(flash());
@@ -70,6 +102,9 @@ app.use((req, res, next) => {
 });
 
 app.use(require("./middleware/storeLocals"));
+
+
+
 app.get("/", (req, res) => {
   res.render("index");
 });
@@ -93,18 +128,33 @@ app.use((err, req, res, next) => {
   console.log(err);
 });
 
+
+
+// const port = process.env.PORT || 3000;
+
+// async function startServer() {
+//   await require("./db/connect")(process.env.MONGO_URI);
+// }
+
+// startServer();
+// const start = async () => {
+//   try {
+//     startServer();
+//     app.listen(port, () =>
+//       console.log(`Server is listening on port ${port}...`)
+//     );
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+// start();
 const port = process.env.PORT || 3000;
-
-async function startServer() {
-  await require("./db/connect")(process.env.MONGO_URI);
-}
-
-startServer();
-const start = async () => {
+const start = () => {
   try {
-    startServer();
-    app.listen(port, () =>
-      console.log(`Server is listening on port ${port}...`)
+    require("./db/connect")(mongoURL);
+    return app.listen(port, () =>
+      console.log(`Server is listening on port ${port}...`),
     );
   } catch (error) {
     console.log(error);
@@ -112,3 +162,5 @@ const start = async () => {
 };
 
 start();
+
+module.exports = { app };
