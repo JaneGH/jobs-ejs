@@ -13,6 +13,8 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
+
 // Set up sessions
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
@@ -39,26 +41,47 @@ app.use(session(sessionParams));
 app.use(require("connect-flash")());
 app.use(flash());
 
-// Routes
-app.get("/secretWord", (req, res) => {
-  if (!req.session.secretWord) {
-    req.session.secretWord = "syzygy";
-  }
-  res.locals.info = req.flash("info");
-  res.locals.errors = req.flash("error");
-  res.render("secretWord", { secretWord: req.session.secretWord });
-});
+const passport = require("passport");
+const passportInit = require("./passport/passportInit");
 
-app.post("/secretWord", (req, res) => {
-  if (req.body.secretWord.toUpperCase()[0] == "P") {
-    req.flash("error", "That word won't work!");
-    req.flash("error", "You can't use words that start with p.");
-  } else {
-    req.session.secretWord = req.body.secretWord;
-    req.flash("info", "The secret word was changed.");
-  }
-  res.redirect("/secretWord");
+passportInit();
+app.use(passport.initialize());
+app.use(passport.session());
+
+//???
+app.use(require("./middleware/storeLocals"));
+app.get("/", (req, res) => {
+  res.render("index");
 });
+app.use("/sessions", require("./routes/sessionRoutes"));
+//???
+
+// Routes
+
+
+const secretWordRouter = require("./routes/secretWord");
+const auth = require("./middleware/auth");
+app.use("/secretWord", auth, secretWordRouter);
+
+// app.get("/secretWord", (req, res) => {
+//   if (!req.session.secretWord) {
+//     req.session.secretWord = "syzygy";
+//   }
+//   res.locals.info = req.flash("info");
+//   res.locals.errors = req.flash("error");
+//   res.render("secretWord", { secretWord: req.session.secretWord });
+// });
+
+// app.post("/secretWord", (req, res) => {
+//   if (req.body.secretWord.toUpperCase()[0] == "P") {
+//     req.flash("error", "That word won't work!");
+//     req.flash("error", "You can't use words that start with p.");
+//   } else {
+//     req.session.secretWord = req.body.secretWord;
+//     req.flash("info", "The secret word was changed.");
+//   }
+//   res.redirect("/secretWord");
+// });
 
 app.use((req, res) => {
   res.status(404).send(`That page (${req.url}) was not found.`);
@@ -69,10 +92,17 @@ app.use((err, req, res, next) => {
   console.log(err);
 });
 
+
 const port = process.env.PORT || 3000;
 
+async function startServer() {
+  await require("./db/connect")(process.env.MONGO_URI);
+}
+
+startServer();
 const start = async () => {
   try {
+    startServer();
     app.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
