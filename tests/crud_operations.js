@@ -54,7 +54,6 @@ describe('CRUD Operations', function() {
     it("get the job list", async () => {
         const { expect, request } = await get_chai();
 
-        // Ensure cookies are set before making the request
         expect(this.sessionCookie).to.not.be.undefined;
 
         const req = request
@@ -65,36 +64,38 @@ describe('CRUD Operations', function() {
 
         const res = await req;
 
-        // Check if the response status is 200
         expect(res).to.have.status(200);
-        
-        // Log response text for debugging
         const pageParts = res.text.split("<tr>");
     
         expect(pageParts.length).to.equal(21);
     });
 
     it('should add a new job entry', async () => {
+        const { expect, request } = await get_chai();
+    
         const jobData = {
             company: 'New Company',
             position: 'New Position',
             status: 'pending',
             _csrf: this.csrfToken,
         };
+    
+        expect(this.sessionCookie).to.not.be.undefined;
+    
+        const req = request
+            .execute(app)
+            .post("/jobs")
+            .set("Cookie", `${this.csrfCookie}; ${this.sessionCookie}`) 
+            .set("Content-Type", "application/x-www-form-urlencoded") 
+            .redirects(0)
+            .send(jobData); 
+    
+        const res = await req; 
+    
 
-        const req = request(app)
-            .post('/jobs/add') // Adjust the route as necessary
-            .set('Cookie', this.sessionCookie) // Use the correct session cookie
-            .set('Cookie', this.csrfCookie) // Use the CSRF cookie
-            .send(jobData);
-
-        const res = await req; // Make the request
-
-        // Log response for debugging
-        console.log("Add Job Response:", res.text);
-
-        // Verify the job was added by checking the database
-        const jobs = await Job.find({ createdBy: this.user._id });
-        expect(jobs.length).to.equal(21); // 20 initial + 1 new
+        const jobs = await Job.find();
+        console.log("Add Job Response1:", jobs.length);
+        expect(jobs.length).to.equal(21); 
     });
+    
 });
