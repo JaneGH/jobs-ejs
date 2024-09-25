@@ -75,11 +75,11 @@ app.get("/multiply", (req, res) => {
 });
 
 
-// Sample HTML route
-app.get("/", (req, res) => {
-  res.send("<h1>Welcome</h1><a href='#'>Click this link</a>");
-});
-//***
+
+// app.get("/", (req, res) => {
+//   res.send("<h1>Welcome</h1><a href='#'>Click this link</a>");
+// });
+
 
 app.use(session(sessionParams));
 app.use(flash());
