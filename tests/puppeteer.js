@@ -108,18 +108,36 @@ describe("jobs-ejs puppeteer test", function () {
     });
     
 
-    // it("should fill out the form and add a job", async () => {
-    //   await this.company.type("Test Company"); // Enter company name
-    //   await this.position.type("Test Position"); // Enter position
-    //   await this.addButton.click(); // Click add button
-    //   await page.waitForNavigation(); // Wait for jobs list to return
+    it("should fill out the form and add a job", async () => {
+        const { expect } = await import('chai');   
 
-    //   const message = await page.waitForSelector('p ::-p-text(Job listing has been added.)');
-    //   expect(await message.evaluate(el => el.textContent)).to.equal("Job listing has been added."); // Verify success message
+        const companyField = await page.waitForSelector('input[name="company"]', { timeout: 10000 });
+        const positionField = await page.waitForSelector('input[name="position"]', { timeout: 10000 });
+        const statusField = await page.waitForSelector('input[name="status"]', { timeout: 10000 });
+        const addButton = await page.waitForSelector('button[type="submit"]', { timeout: 10000 });
 
-    //   // Verify the job was added to the database
-    //   const jobs = await Job.find({ company: "Test Company", position: "Test Position" });
-    //   expect(jobs.length).to.be.greaterThan(0); // Check that the job exists
-    // });
+        const companyName = "Test Company";
+        const positionName = "Test Position";
+        const statusName = "interview";
+
+        await companyField.type(companyName);
+        await positionField.type(positionName);
+        await statusField.type(statusName);
+        
+        await addButton.click();
+        await page.waitForNavigation();
+
+        const formTitle = await page.waitForSelector("title");
+        const titleText = await formTitle.evaluate(el => el.textContent);
+      
+        expect(titleText).to.equal("Jobs List");
+
+        const latestJob = await Job.findOne({}).sort({ createdAt: -1 }).exec(); 
+        expect(latestJob).to.exist;
+        expect(latestJob.company).to.equal(companyName);
+        expect(latestJob.position).to.equal(positionName);
+        expect(latestJob.status).to.equal(statusName);
+
+    });
   });
 });
