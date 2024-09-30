@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jobs List</title>
+</head>
+<body>
+  <h2>Jobs List</h2>
+  <table id="jobs-table">
+    <tr id="jobs-table-header">
+      <th>Company</th>
+      <th>Position</th>
+      <th>Status</th>
+      <th colspan="2"></th>
+    </tr>
+    <% if (jobs && jobs.length) { %>
+      <% jobs.forEach((job) => { %>
+        <tr>
+          <td><%= job.company %></td>
+          <td><%= job.position %></td>
+          <td><%= job.status %></td>
+          <td>
+            <a href="/jobs/edit/<%= job._id %>">
+              <button type="button">edit</button>
+            </a>
+          </td>
+          <td>
+            <form method="POST" action="/jobs/delete/<%= job._id %>" style="display: inline">
+              <button type="submit">delete</button>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    <% } %>
+  </table>
+  <a href="/jobs/new">Add New Job</a>
+</body>
+</html>
