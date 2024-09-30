@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
-const csrf = require("csurf");
+const csrf = require("host-csrf");
 const helmet = require("helmet");
 const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
@@ -60,12 +60,23 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // CSRF Protection
-const csrfProtection = csrf({ cookie: { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict" } });
-app.use(csrfProtection);
+let csrf_development_mode = true;
+if (app.get("env") === "production") {
+  csrf_development_mode = false;
+  app.set("trust proxy", 1);
+}
+const csrf_options = {
+  protected_operations: ["POST", "PATCH"],
+  protected_content_types: ["application/json"],
+  development_mode: csrf_development_mode,
+};
 
-// Middleware to expose CSRF token to views
+const csrf_middleware = csrf(csrf_options); 
+app.use(csrf_middleware)
+
+
 app.use((req, res, next) => {
-  res.locals.csrfToken = req.csrfToken();
+  res.locals.csrfToken = csrf.token(req, res); 
   next();
 });
 
