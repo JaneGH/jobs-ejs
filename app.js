@@ -99,7 +99,7 @@ if (app.get("env") === "production") {
 }
 const csrf_options = {
   protected_operations: ["POST", "PATCH"],
-  protected_content_types: ["application/json"],
+  protected_content_types: ["application/json", "application/x-www-form-urlencoded"],
   development_mode: csrf_development_mode,
 };
 
@@ -109,6 +109,7 @@ app.use(csrf_middleware)
 
 app.use((req, res, next) => {
   res.locals.csrfToken = csrf.token(req, res); 
+  console.log("my token " + res.locals.csrfToken);
   next();
 });
 
@@ -119,6 +120,7 @@ app.use(require("./middleware/storeLocals"));
 app.get("/", (req, res) => {
   res.render("index");
 });
+
 app.use("/sessions", require("./routes/sessionRoutes"));
 
 // Routes
