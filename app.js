@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
-const csrf = require("host-csrf");
+const csrf = require("host-csrf")
 const helmet = require("helmet");
 const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
@@ -98,13 +98,12 @@ if (app.get("env") === "production") {
   app.set("trust proxy", 1);
 }
 const csrf_options = {
-  protected_operations: ["POST", "PATCH"],
-  protected_content_types: ["application/json", "application/x-www-form-urlencoded"],
+  protected_operations: ["POST", "PATCH", "PUT"],
+  protected_content_types: ["application/x-www-form-urlencoded", "application/json"],
   development_mode: csrf_development_mode,
+  header_name: "csrf-token",
 };
-
-const csrf_middleware = csrf(csrf_options); 
-app.use(csrf_middleware)
+app.use(csrf(csrf_options));
 
 
 app.use((req, res, next) => {
@@ -142,26 +141,6 @@ app.use((err, req, res, next) => {
 });
 
 
-
-// const port = process.env.PORT || 3000;
-
-// async function startServer() {
-//   await require("./db/connect")(process.env.MONGO_URI);
-// }
-
-// startServer();
-// const start = async () => {
-//   try {
-//     startServer();
-//     app.listen(port, () =>
-//       console.log(`Server is listening on port ${port}...`)
-//     );
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// start();
 const port = process.env.PORT || 3000;
 const start = () => {
   try {
