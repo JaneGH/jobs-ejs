@@ -8,6 +8,7 @@
 <body>
   <h2><%= job ? 'Edit Job' : 'New Job' %></h2>
   <form method="POST" action="<%= job ? `/jobs/update/${job._id}` : '/jobs' %>">
+    <input type="hidden" name="_csrf" value="<%= _csrf %>" />
     <label for="company">Company:</label>
     <input type="text" id="company" name="company" value="<%= job ? job.company : '' %>" required>
     <br>
@@ -17,7 +18,6 @@
     <label for="status">Status:</label>
     <input type="text" id="status" name="status" value="<%= job ? job.status : '' %>" required>
     <br>
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
     <button type="submit"><%= job ? 'Update' : 'Create' %></button>
   </form>
   <a href="/jobs">Back to Job List</a>

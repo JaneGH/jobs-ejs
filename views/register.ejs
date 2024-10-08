@@ -1,6 +1,7 @@
 <%- include("partials/head.ejs") %>
 <%- include("partials/header.ejs") %>
 <form method="POST">
+  <input type="hidden" name="_csrf" value="<%= _csrf %>" />
   <div>
     <label name="name">Enter your name:</label>
     <input name="name" />
@@ -23,6 +24,5 @@
       <button type="button">Cancel</button>
     </a>
   </div>
-  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 </form>
 <%- include("partials/footer.ejs") %>

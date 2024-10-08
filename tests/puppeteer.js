@@ -1,143 +1,143 @@
-// const puppeteer = require("puppeteer");
-// require("../app");
-// // const { expect } = require("chai");
-// const { seed_db, testUserPassword } = require("../util/seed_db");
-// const Job = require("../models/Job");
+const puppeteer = require("puppeteer");
+require("../app");
+// const { expect } = require("chai");
+const { seed_db, testUserPassword } = require("../util/seed_db");
+const Job = require("../models/Job");
 
-// let testUser = null;
+let testUser = null;
 
-// let page = null;
-// let browser = null;
-// // Launch the browser and open a new blank page
-// describe("jobs-ejs puppeteer test", function () {
-//   before(async function () {
-//     this.timeout(10000);
-//     //await sleeper(5000)
-//     browser = await puppeteer.launch();
-//     page = await browser.newPage();
-//     await page.goto("http://localhost:3000");
-//   });
-//   after(async function () {
-//     this.timeout(5000);
-//     await browser.close();
-//   });
-//   describe("got to site", function () {
-//     it("should have completed a connection", async function () {});
-//   });
-//   describe("index page test", function () {
-//     this.timeout(10000);
-//     it("finds the index page logon link", async () => {
-//       this.logonLink = await page.waitForSelector(
-//         "a ::-p-text(Click this link to logon)",
-//       );
-//     });
-//     it("gets to the logon page", async () => {
-//       await this.logonLink.click();
-//       await page.waitForNavigation();
-//       const email = await page.waitForSelector('input[name="email"]');
-//     });
-//   });
-//   describe("logon page test", function () {
-//     this.timeout(20000);
-//     it("resolves all the fields", async () => {
-//       this.email = await page.waitForSelector('input[name="email"]');
-//       this.password = await page.waitForSelector('input[name="password"]');
-//       this.submit = await page.waitForSelector("button ::-p-text(Logon)");
-//     });
-//     it("sends the logon", async () => {
-//       testUser = await seed_db();
-//       await this.email.type(testUser.email);
-//       await this.password.type(testUserPassword);
-//       await this.submit.click();
-//       await page.waitForNavigation();
-//       await page.waitForSelector(`p ::-p-text(${testUser.name} is logged on.)`);
-//       await page.waitForSelector("a ::-p-text(change the secret)");
-//       await page.waitForSelector('a[href="/secretWord"]');
-//       const copyr = await page.waitForSelector("p ::-p-text(copyright)");
-//       const copyrText = await copyr.evaluate((el) => el.textContent);
-//       console.log("copyright text: ", copyrText);
-//     });
-//   });
+let page = null;
+let browser = null;
+// Launch the browser and open a new blank page
+describe("jobs-ejs puppeteer test", function () {
+  before(async function () {
+    this.timeout(10000);
+    //await sleeper(5000)
+    browser = await puppeteer.launch();
+    page = await browser.newPage();
+    await page.goto("http://localhost:3000");
+  });
+  after(async function () {
+    this.timeout(5000);
+    await browser.close();
+  });
+  describe("got to site", function () {
+    it("should have completed a connection", async function () {});
+  });
+  describe("index page test", function () {
+    this.timeout(10000);
+    it("finds the index page logon link", async () => {
+      this.logonLink = await page.waitForSelector(
+        "a ::-p-text(Click this link to logon)",
+      );
+    });
+    it("gets to the logon page", async () => {
+      await this.logonLink.click();
+      await page.waitForNavigation();
+      const email = await page.waitForSelector('input[name="email"]');
+    });
+  });
+  describe("logon page test", function () {
+    this.timeout(20000);
+    it("resolves all the fields", async () => {
+      this.email = await page.waitForSelector('input[name="email"]');
+      this.password = await page.waitForSelector('input[name="password"]');
+      this.submit = await page.waitForSelector("button ::-p-text(Logon)");
+    });
+    it("sends the logon", async () => {
+      testUser = await seed_db();
+      await this.email.type(testUser.email);
+      await this.password.type(testUserPassword);
+      await this.submit.click();
+      await page.waitForNavigation();
+      await page.waitForSelector(`p ::-p-text(${testUser.name} is logged on.)`);
+      await page.waitForSelector("a ::-p-text(change the secret)");
+      await page.waitForSelector('a[href="/secretWord"]');
+      const copyr = await page.waitForSelector("p ::-p-text(copyright)");
+      const copyrText = await copyr.evaluate((el) => el.textContent);
+      console.log("copyright text: ", copyrText);
+    });
+  });
 
-//   //more
-//   describe("puppeteer job operations", function () {
-//     this.timeout(30000);
+  //more
+  describe("puppeteer job operations", function () {
+    this.timeout(30000);
 
-//     it("should navigate to the jobs list and verify entries", async () => {
-//         const { expect } = await import('chai');    
-//         const jobsLink = await page.waitForSelector('a ::-p-text(View Jobs)');
-//         await jobsLink.click();
-//         await page.waitForNavigation();
+    it("should navigate to the jobs list and verify entries", async () => {
+        const { expect } = await import('chai');    
+        const jobsLink = await page.waitForSelector('a ::-p-text(View Jobs)');
+        await jobsLink.click();
+        await page.waitForNavigation();
         
-//         const content = await page.content();
+        const content = await page.content();
         
-//         // Count the number of <tr> entries in the jobs list
-//         const jobEntries = content.split('<tr>').length - 1; // -1 because of the header row
-//         expect(jobEntries).to.equal(20, "Expected 20 job entries in the list.");
-//       });
+        // Count the number of <tr> entries in the jobs list
+        const jobEntries = content.split('<tr>').length - 1; // -1 because of the header row
+        expect(jobEntries).to.equal(20, "Expected 20 job entries in the list.");
+      });
 
-//       it("should open the 'Add A Job' form and validate its fields", async () => {
-//         const { expect } = await import('chai');   
-//         const addNewJobLink = await page.waitForSelector('a[href="/jobs/new"]');
-//         await addNewJobLink.click();
-//         await page.waitForNavigation();
+      it("should open the 'Add A Job' form and validate its fields", async () => {
+        const { expect } = await import('chai');   
+        const addNewJobLink = await page.waitForSelector('a[href="/jobs/new"]');
+        await addNewJobLink.click();
+        await page.waitForNavigation();
 
-//         const formTitle = await page.waitForSelector("h2");
-//         const titleText = await formTitle.evaluate(el => el.textContent);
-//         expect(titleText).to.equal("New Job");
+        const formTitle = await page.waitForSelector("h2");
+        const titleText = await formTitle.evaluate(el => el.textContent);
+        expect(titleText).to.equal("New Job");
 
-//         const companyField = await page.waitForSelector('input[name="company"]', { timeout: 10000 });
-//         const positionField = await page.waitForSelector('input[name="position"]', { timeout: 10000 });
-//         const statusField = await page.waitForSelector('input[name="status"]', { timeout: 10000 });
-//         const addButton = await page.waitForSelector('button[type="submit"]', { timeout: 10000 });
+        const companyField = await page.waitForSelector('input[name="company"]', { timeout: 10000 });
+        const positionField = await page.waitForSelector('input[name="position"]', { timeout: 10000 });
+        const statusField = await page.waitForSelector('input[name="status"]', { timeout: 10000 });
+        const addButton = await page.waitForSelector('button[type="submit"]', { timeout: 10000 });
     
-//         expect(companyField).to.exist;
-//         expect(positionField).to.exist;
-//         expect(statusField).to.exist;
-//         expect(addButton).to.exist;
+        expect(companyField).to.exist;
+        expect(positionField).to.exist;
+        expect(statusField).to.exist;
+        expect(addButton).to.exist;
     
-//         const companyValue = await companyField.evaluate(el => el.value);
-//         const positionValue = await positionField.evaluate(el => el.value);
-//         const statusValue = await statusField.evaluate(el => el.value);
+        const companyValue = await companyField.evaluate(el => el.value);
+        const positionValue = await positionField.evaluate(el => el.value);
+        const statusValue = await statusField.evaluate(el => el.value);
     
-//         expect(companyValue).to.equal('');
-//         expect(positionValue).to.equal('');
-//         expect(statusValue).to.equal('');
-    
-
-//     });
+        expect(companyValue).to.equal('');
+        expect(positionValue).to.equal('');
+        expect(statusValue).to.equal('');
     
 
-//     it("should fill out the form and add a job", async () => {
-//         const { expect } = await import('chai');   
+    });
+    
 
-//         const companyField = await page.waitForSelector('input[name="company"]', { timeout: 10000 });
-//         const positionField = await page.waitForSelector('input[name="position"]', { timeout: 10000 });
-//         const statusField = await page.waitForSelector('input[name="status"]', { timeout: 10000 });
-//         const addButton = await page.waitForSelector('button[type="submit"]', { timeout: 10000 });
+    it("should fill out the form and add a job", async () => {
+        const { expect } = await import('chai');   
 
-//         const companyName = "Test Company";
-//         const positionName = "Test Position";
-//         const statusName = "interview";
+        const companyField = await page.waitForSelector('input[name="company"]', { timeout: 10000 });
+        const positionField = await page.waitForSelector('input[name="position"]', { timeout: 10000 });
+        const statusField = await page.waitForSelector('input[name="status"]', { timeout: 10000 });
+        const addButton = await page.waitForSelector('button[type="submit"]', { timeout: 10000 });
 
-//         await companyField.type(companyName);
-//         await positionField.type(positionName);
-//         await statusField.type(statusName);
+        const companyName = "Test Company";
+        const positionName = "Test Position";
+        const statusName = "interview";
+
+        await companyField.type(companyName);
+        await positionField.type(positionName);
+        await statusField.type(statusName);
         
-//         await addButton.click();
-//         await page.waitForNavigation();
+        await addButton.click();
+        await page.waitForNavigation();
 
-//         const formTitle = await page.waitForSelector("title");
-//         const titleText = await formTitle.evaluate(el => el.textContent);
+        const formTitle = await page.waitForSelector("title");
+        const titleText = await formTitle.evaluate(el => el.textContent);
       
-//         expect(titleText).to.equal("Jobs List");
+        expect(titleText).to.equal("Jobs List");
 
-//         const latestJob = await Job.findOne({}).sort({ createdAt: -1 }).exec(); 
-//         expect(latestJob).to.exist;
-//         expect(latestJob.company).to.equal(companyName);
-//         expect(latestJob.position).to.equal(positionName);
-//         expect(latestJob.status).to.equal(statusName);
+        const latestJob = await Job.findOne({}).sort({ createdAt: -1 }).exec(); 
+        expect(latestJob).to.exist;
+        expect(latestJob.company).to.equal(companyName);
+        expect(latestJob.position).to.equal(positionName);
+        expect(latestJob.status).to.equal(statusName);
 
-//     });
-//   });
-// });
+    });
+  });
+});

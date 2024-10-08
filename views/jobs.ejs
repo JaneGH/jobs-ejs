@@ -28,7 +28,7 @@
           <td>
             <form method="POST" action="/jobs/delete/<%= job._id %>" style="display: inline">
               <button type="submit">delete</button>
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="_csrf" value="<%= _csrf %>" />
             </form>
           </td>
         </tr>

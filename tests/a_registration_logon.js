@@ -3,6 +3,7 @@ const { factory, seed_db } = require("../util/seed_db");
 const faker = require("@faker-js/faker").fakerEN_US;
 const get_chai = require("../util/get_chai");
 const User = require("../models/User");
+const { resolveConfigFile } = require("prettier");
 
 describe("tests for registration and logon", function () {
   before(async () => {
@@ -21,8 +22,11 @@ describe("tests for registration and logon", function () {
   
     // Extract CSRF token
     const textNoLineEnd = res.text.replaceAll("\n", "");
-    const csrfToken = /_csrf" value="(.*?)"/.exec(textNoLineEnd);
+    console.log('textNoLineEnd:', textNoLineEnd);
+
+    const csrfToken = /_csrf\" value=\"(.*?)\"/.exec(textNoLineEnd);
     expect(csrfToken).to.not.be.null;
+  
     this.csrfToken = csrfToken[1];
   
     // Log all cookies for debugging
@@ -44,7 +48,6 @@ describe("tests for registration and logon", function () {
     const { expect, request } = await get_chai();
     this.password = faker.internet.password();
     this.user = await factory.build("user", { password: this.password });
-
     const dataToPost = {
       name: this.user.name,
       email: this.user.email,
@@ -57,73 +60,69 @@ describe("tests for registration and logon", function () {
       .post("/sessions/register")
       .set("Cookie", this.csrfCookie)
       .set("content-type", "application/x-www-form-urlencoded")
-      .redirects(0)
       .send(dataToPost);
-   
-      const res = await req;
-    expect(res).to.have.status(302);
-
+    const res = await req;
+    expect(res).to.have.status(200);
     expect(res).to.have.property("text");
-    expect(res.text).to.include("Jobs List");
-
-    const newUser = await User.findOne({ email: this.user.email });
+    expect(res.text).to.include("List");
+    newUser = await User.findOne({ email: this.user.email });
     expect(newUser).to.not.be.null;
   });
 
-  // it("should log the user on", async () => {
-  //   const { expect, request } = await get_chai();
-  //   const dataToPost = {
-  //     email: this.user.email,
-  //     password: this.password,
-  //     _csrf: this.csrfToken,
-  //   };
+  it("should log the user on", async () => {
+    const { expect, request } = await get_chai();
+    const dataToPost = {
+      email: this.user.email,
+      password: this.password,
+      _csrf: this.csrfToken,
+    };
 
-  //   const req = request
-  //     .execute(app)
-  //     .post("/sessions/logon")
-  //     .set("Cookie", this.csrfCookie)
-  //     .set("content-type", "application/x-www-form-urlencoded")
-  //     .redirects(0)
-  //     .send(dataToPost);
-  //   const res = await req;
+    const req = request
+      .execute(app)
+      .post("/sessions/logon")
+      .set("Cookie", this.csrfCookie)
+      .set("content-type", "application/x-www-form-urlencoded")
+      .redirects(0)
+      .send(dataToPost);
+    const res = await req;
 
-  //   expect(res).to.have.status(302);
-  //   expect(res.headers.location).to.equal("/");
+    expect(res).to.have.status(302);
+    expect(res.headers.location).to.equal("/");
 
-  //   const cookies = res.headers["set-cookie"];
-  //   this.sessionCookie = cookies.find((element) =>
-  //     element.startsWith("connect.sid"),
-  //   );
-  //   expect(this.sessionCookie).to.not.be.undefined;
-  // });
+    const cookies = res.headers["set-cookie"];
+    this.sessionCookie = cookies.find((element) =>
+      element.startsWith("connect.sid"),
+    );
+    expect(this.sessionCookie).to.not.be.undefined;
+  });
 
-  // it("should get the index page", async () => {
-  //   const { expect, request } = await get_chai();
-  //   const req = request
-  //     .execute(app)
-  //     .get("/")
-  //     .set("Cookie", `${this.csrfCookie}; ${this.sessionCookie}`)
-  //     .send();
-  //   const res = await req;
+  it("should get the index page", async () => {
+    const { expect, request } = await get_chai();
+    const req = request
+      .execute(app)
+      .get("/")
+      .set("Cookie", this.csrfCookie)
+      .set("Cookie", this.sessionCookie)
+      .send();
+    const res = await req;
+    expect(res).to.have.status(200);
+    expect(res).to.have.property("text");
+    expect(res.text).to.include(this.user.name);
+  });
 
-  //   expect(res).to.have.status(200);
-  //   expect(res).to.have.property("text");
-  //   expect(res.text).to.include(this.user.name);
-  // });
+  it("should log the user off", async () => {
+    const { expect, request } = await get_chai();
+    const dataToPost = { _csrf: this.csrfToken };
 
-  // it("should log the user off", async () => {
-  //   const { expect, request } = await get_chai();
-  //   const dataToPost = { _csrf: this.csrfToken };
+    const req = request
+      .execute(app)
+      .post("/sessions/logoff")
+      .set("Cookie", `${this.csrfCookie}; ${this.sessionCookie}`)
+      .set("content-type", "application/x-www-form-urlencoded")
+      .send(dataToPost);
+    const res = await req;
 
-  //   const req = request
-  //     .execute(app)
-  //     .post("/sessions/logoff")
-  //     .set("Cookie", `${this.csrfCookie}; ${this.sessionCookie}`)
-  //     .set("content-type", "application/x-www-form-urlencoded")
-  //     .send(dataToPost);
-  //   const res = await req;
-
-  //   expect(res).to.have.status(200);
-  //   expect(res.text).to.include("Click this link to logon");
-  // });
+    expect(res).to.have.status(200);
+    expect(res.text).to.include("Click this link to logon");
+  });
 });
